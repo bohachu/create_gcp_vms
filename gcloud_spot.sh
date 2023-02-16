@@ -6,3 +6,4 @@ for i in {1..10}; do
         --boot-disk-type=pd-standard \
         --zone=us-central1-a \
         --preemptible &
+done
