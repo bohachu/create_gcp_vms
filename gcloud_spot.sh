@@ -1,0 +1,10 @@
+gcloud compute instances create vm1 --provisioning-model=SPOT --instance-termination-action=STOP &
+gcloud compute instances create vm2 --provisioning-model=SPOT --instance-termination-action=STOP &
+gcloud compute instances create vm3 --provisioning-model=SPOT --instance-termination-action=STOP &
+gcloud compute instances create vm4 --provisioning-model=SPOT --instance-termination-action=STOP &
+gcloud compute instances create vm5 --provisioning-model=SPOT --instance-termination-action=STOP &
+gcloud compute instances create vm6 --provisioning-model=SPOT --instance-termination-action=STOP &
+gcloud compute instances create vm7 --provisioning-model=SPOT --instance-termination-action=STOP &
+gcloud compute instances create vm8 --provisioning-model=SPOT --instance-termination-action=STOP &
+gcloud compute instances create vm9 --provisioning-model=SPOT --instance-termination-action=STOP &
+gcloud compute instances create vm10 --provisioning-model=SPOT --instance-termination-action=STOP &
