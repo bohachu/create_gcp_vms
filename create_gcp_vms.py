@@ -4,8 +4,7 @@ import os
 import threading
 import time
 import json
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
+from google.cloud import compute_v1
 
 # Default parameters
 DEFAULT_MACHINE_TYPE = 'e2-micro'
@@ -24,8 +23,8 @@ def create_vm(name, machine_type=DEFAULT_MACHINE_TYPE, image_project=DEFAULT_IMA
               firewall_rules=DEFAULT_FIREWALL_RULES,
               startup_script=None, docker_compose_file=None):
     # Authenticate and create the Compute Engine client
-    credentials, project_id = google.auth.default()
-    compute = build('compute', 'v1', credentials=credentials)
+    creds, project_id = google.auth.default()
+    compute = compute_v1.ComputeClient(credentials=creds)
 
     # Create the VM configuration
     config = {
@@ -186,7 +185,7 @@ python create_gcp_vms.py --count <count> [--machine-type <machine-type>] [--imag
 Replace `<count>` with the number of VMs you want to create. The other arguments are all optional and have default values, as specified in the script. You can provide values for any of these arguments to override the defaults. 
 For example, to create 5 VMs with custom firewall rules and a custom Docker Compose file, you could run the following command:
 
-python create_gcp_vms.py --count 5 --firewall-rules http-server https-server --docker-compose-file docker-compose.yml
+python3 create_gcp_vms.py --count 5 --firewall-rules http-server https-server --docker-compose-file docker-compose.yml
 
 This would create 5 VMs with the default machine type, disk type, disk size, network, and image, but with the `http-server` and `https-server` firewall rules applied. It would also copy the `docker-compose.yml` file to each VM and start the Docker Compose service on each VM.
 '''
