@@ -67,8 +67,8 @@ def create_vm(name, machine_type=DEFAULT_MACHINE_TYPE, image_project=DEFAULT_IMA
         print(f'Creating VM {name}...')
         wait_for_operation(compute, project_id, os.environ['GOOGLE_CLOUD_ZONE'], operation['name'])
         print(f'VM {name} has been created successfully.')
-    except HttpError as error:
-        print(f'Error creating VM {name}: {error.content}')
+    except Exception as e:
+        print(f'Error creating VM {name}: {e}')
         return
 
     # If a Docker Compose file is provided, run it on the VM

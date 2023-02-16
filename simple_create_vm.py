@@ -46,7 +46,8 @@ def create_vm(compute, project, zone, name, machine_type, preemptible, image_fam
 
 def main(project, zone, name, machine_type, preemptible, image_family, disk_size, startup_script):
     creds, project_id = default()
-    compute = compute_v1.ComputeClient(credentials=creds)
+    # compute = compute_v1.ComputeClient(credentials=creds)
+    compute = compute_v1.ImagesClient()
 
     create_vm(compute, project, zone, name, machine_type, preemptible, image_family, disk_size, startup_script)
 
@@ -75,6 +76,7 @@ if __name__ == '__main__':
     parser.add_argument('--startup-script', default='', help='The startup script to run on the new VM.')
     args = parser.parse_args()
 
-    main(args.project, args.zone, args.name, args.machine_type, args.preemptible, args.image_family, args.disk_size, args.startup_script)
+    main(args.project, args.zone, args.name, args.machine_type, args.preemptible, args.image_family, args.disk_size,
+         args.startup_script)
 
 # python3 simple_create_vm.py --project <project-id> --zone <zone> --name <vm-name>
