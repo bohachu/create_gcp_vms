@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for i in {1..10}; do
+for i in {1..30}; do
     gcloud compute instances create "vm-${i}" \
         --boot-disk-size=10 \
         --boot-disk-type=pd-standard \
