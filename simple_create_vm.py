@@ -2,6 +2,7 @@ import argparse
 from google.cloud import compute_v1
 from google.auth import default
 import time
+from google.oauth2 import service_account
 
 
 def create_vm(compute, project, zone, name, machine_type, preemptible, image_family, disk_size, startup_script):
@@ -47,8 +48,9 @@ def create_vm(compute, project, zone, name, machine_type, preemptible, image_fam
 
 def main(project, zone, name, machine_type, preemptible, image_family, disk_size, startup_script):
     # Get the default credentials
-    creds, project_id = default()
+    # creds, project_id = default()
     # compute = compute_v1.ComputeClient(credentials=creds)
+    creds = service_account.Credentials.from_service_account_file('key.json')
     compute = compute_v1.ImagesClient(credentials=creds)
 
     create_vm(compute, project, zone, name, machine_type, preemptible, image_family, disk_size, startup_script)
