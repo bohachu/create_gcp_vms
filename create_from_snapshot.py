@@ -97,14 +97,14 @@ def create_instance(
         zone: str,
         instance_name: str,
         disks: List[compute_v1.AttachedDisk],
-        machine_type: str = "n1-standard-1",
+        machine_type: str = "t2d-standard-1",
         network_link: str = "global/networks/default",
         subnetwork_link: str = None,
         internal_ip: str = None,
         external_access: bool = False,
         external_ipv4: str = None,
         accelerators: List[compute_v1.AcceleratorConfig] = None,
-        preemptible: bool = False,
+        preemptible: bool = True,
         spot: bool = False,
         instance_termination_action: str = "STOP",
         custom_hostname: str = None,
@@ -229,7 +229,7 @@ def create_from_snapshot(
 ):
     """
     Create a new VM instance with boot disk created from a snapshot. The
-    new boot disk will have 20 gigabytes.
+    new boot disk will have 10 gigabytes.
 
     Args:
         project_id: project ID or project number of the Cloud project you want to use.
@@ -242,7 +242,7 @@ def create_from_snapshot(
         Instance object.
     """
     disk_type = f"zones/{zone}/diskTypes/pd-standard"
-    disks = [disk_from_snapshot(disk_type, 20, True, snapshot_link)]
+    disks = [disk_from_snapshot(disk_type, 10, True, snapshot_link)]
     instance = create_instance(project_id, zone, instance_name, disks)
     return instance
 
