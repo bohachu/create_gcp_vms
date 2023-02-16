@@ -8,7 +8,8 @@ from google.oauth2 import service_account
 def create_vm(compute, project, zone, name, machine_type, preemptible, image_family, disk_size, startup_script):
     # image_response = compute.images().getFromFamily(project=project, family=image_family).execute()
     image_response = compute.get_from_family(project=project, family=image_family)
-    source_disk_image = image_response['selfLink']
+    # source_disk_image = image_response['selfLink']
+    source_disk_image = image_response.self_link
 
     config = {
         'name': name,
