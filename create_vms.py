@@ -29,5 +29,5 @@ if __name__ == '__main__':
     project_id = "plant-hero"
     zone = "us-central1-a"
     snapshot_link = "projects/plant-hero/global/snapshots/snapshot-5-05"
-    num_vms = 3
+    num_vms = 30
     ip_addresses = create_vms(project_id, zone, snapshot_link, num_vms)
