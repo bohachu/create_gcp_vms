@@ -10,7 +10,7 @@ def create_vm_helper(project_id: str, zone: str, vm_name: str, snapshot_link: st
 
 def create_vms(project_id: str, zone: str, snapshot_link: str, num_vms: int) -> List[str]:
     vm_names = [f"vm-{i + 1}" for i in range(num_vms)]
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
         future_to_vm_name = {executor.submit(create_vm_helper, project_id, zone, vm_name, snapshot_link): vm_name for
                              vm_name in vm_names}
         ip_addresses = []
