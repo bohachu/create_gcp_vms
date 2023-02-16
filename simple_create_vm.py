@@ -46,9 +46,10 @@ def create_vm(compute, project, zone, name, machine_type, preemptible, image_fam
 
 
 def main(project, zone, name, machine_type, preemptible, image_family, disk_size, startup_script):
+    # Get the default credentials
     creds, project_id = default()
     # compute = compute_v1.ComputeClient(credentials=creds)
-    compute = compute_v1.ImagesClient()
+    compute = compute_v1.ImagesClient(credentials=creds)
 
     create_vm(compute, project, zone, name, machine_type, preemptible, image_family, disk_size, startup_script)
 
