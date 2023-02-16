@@ -248,4 +248,4 @@ def create_from_snapshot(
 
 
 if __name__ == '__main__':
-    create_from_snapshot('plant-hero', 'us-central1-a', 'vm-001', 'snapshot-5-05')
+    create_from_snapshot('plant-hero', 'us-central1-a', 'vm-001', 'projects/plant-hero/global/snapshots/snapshot-5-05')
