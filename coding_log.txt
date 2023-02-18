@@ -1,4 +1,176 @@
+### 2023-02-18 08:41 bowen create vm
+. try to upload and test it
+
 ### 2023-02-18 bowen create vm
-because there are creating max 3 snapshot instances at once limitation, use another approach
+. because there are creating max 3 snapshot instances at once limitation, use another approach
+chatgpt: 
+. 請依據以下的最新程式碼進行修改，才不會弄錯，因為下面的程式碼是最新的 gcp api 寫成的
+. 請幫助我們修改為設計一個 python 套件
+. 該套件能夠一次建立 n 台 vm, 例如 n=100
+. 建立 vm 的時間為了達到最快背景同時建立的效果，請使用 async 或者使用 multi threads
+. 請幫我們設計為 cli 將參數都放在 command line arguments
+. 要可以從 dockerhub 下載 docker image 開機啟動的時候就已經完成啟用
+
+import re
+import sys
+from typing import Any, List
+import warnings
+
+from google.api_core.extended_operation import ExtendedOperation
+from google.cloud import compute_v1
+
+def get_image_from_family(project: str, family: str) -> compute_v1.Image:
+
+    image_client = compute_v1.ImagesClient()
+    # List of public operating system (OS) images: https://cloud.google.com/compute/docs/images/os-details
+    newest_image = image_client.get_from_family(project=project, family=family)
+    return newest_image
+
+
+def disk_from_image(
+    disk_type: str,
+    disk_size_gb: int,
+    boot: bool,
+    source_image: str,
+    auto_delete: bool = True,
+) -> compute_v1.AttachedDisk:
+
+    boot_disk = compute_v1.AttachedDisk()
+    initialize_params = compute_v1.AttachedDiskInitializeParams()
+    initialize_params.source_image = source_image
+    initialize_params.disk_size_gb = disk_size_gb
+    initialize_params.disk_type = disk_type
+    boot_disk.initialize_params = initialize_params
+    # Remember to set auto_delete to True if you want the disk to be deleted when you delete
+    # your VM instance.
+    boot_disk.auto_delete = auto_delete
+    boot_disk.boot = boot
+    return boot_disk
+
+
+def wait_for_extended_operation(
+    operation: ExtendedOperation, verbose_name: str = "operation", timeout: int = 300
+) -> Any:
+
+    result = operation.result(timeout=timeout)
+
+    if operation.error_code:
+        print(
+            f"Error during {verbose_name}: [Code: {operation.error_code}]: {operation.error_message}",
+            file=sys.stderr,
+            flush=True,
+        )
+        print(f"Operation ID: {operation.name}", file=sys.stderr, flush=True)
+        raise operation.exception() or RuntimeError(operation.error_message)
+
+    if operation.warnings:
+        print(f"Warnings during {verbose_name}:\n", file=sys.stderr, flush=True)
+        for warning in operation.warnings:
+            print(f" - {warning.code}: {warning.message}", file=sys.stderr, flush=True)
+
+    return result
+
+
+def create_instance(
+    project_id: str,
+    zone: str,
+    instance_name: str,
+    disks: List[compute_v1.AttachedDisk],
+    machine_type: str = "n1-standard-1",
+    network_link: str = "global/networks/default",
+    subnetwork_link: str = None,
+    internal_ip: str = None,
+    external_access: bool = False,
+    external_ipv4: str = None,
+    accelerators: List[compute_v1.AcceleratorConfig] = None,
+    preemptible: bool = False,
+    spot: bool = False,
+    instance_termination_action: str = "STOP",
+    custom_hostname: str = None,
+    delete_protection: bool = False,
+) -> compute_v1.Instance:
+    instance_client = compute_v1.InstancesClient()
+
+    # Use the network interface provided in the network_link argument.
+    network_interface = compute_v1.NetworkInterface()
+    network_interface.name = network_link
+    if subnetwork_link:
+        network_interface.subnetwork = subnetwork_link
+
+    if internal_ip:
+        network_interface.network_i_p = internal_ip
+
+    if external_access:
+        access = compute_v1.AccessConfig()
+        access.type_ = compute_v1.AccessConfig.Type.ONE_TO_ONE_NAT.name
+        access.name = "External NAT"
+        access.network_tier = access.NetworkTier.PREMIUM.name
+        if external_ipv4:
+            access.nat_i_p = external_ipv4
+        network_interface.access_configs = [access]
+
+    # Collect information into the Instance object.
+    instance = compute_v1.Instance()
+    instance.network_interfaces = [network_interface]
+    instance.name = instance_name
+    instance.disks = disks
+    if re.match(r"^zones/[a-z\d\-]+/machineTypes/[a-z\d\-]+$", machine_type):
+        instance.machine_type = machine_type
+    else:
+        instance.machine_type = f"zones/{zone}/machineTypes/{machine_type}"
+
+    if accelerators:
+        instance.guest_accelerators = accelerators
+
+    if preemptible:
+        # Set the preemptible setting
+        warnings.warn(
+            "Preemptible VMs are being replaced by Spot VMs.", DeprecationWarning
+        )
+        instance.scheduling = compute_v1.Scheduling()
+        instance.scheduling.preemptible = True
+
+    if spot:
+        # Set the Spot VM setting
+        instance.scheduling = compute_v1.Scheduling()
+        instance.scheduling.provisioning_model = (
+            compute_v1.Scheduling.ProvisioningModel.SPOT.name
+        )
+        instance.scheduling.instance_termination_action = instance_termination_action
+
+    if custom_hostname is not None:
+        # Set the custom hostname for the instance
+        instance.hostname = custom_hostname
+
+    if delete_protection:
+        # Set the delete protection bit
+        instance.deletion_protection = True
+
+    # Prepare the request to insert an instance.
+    request = compute_v1.InsertInstanceRequest()
+    request.zone = zone
+    request.project = project_id
+    request.instance_resource = instance
+
+    # Wait for the create operation to complete.
+    print(f"Creating the {instance_name} instance in {zone}...")
+
+    operation = instance_client.insert(request=request)
+
+    wait_for_extended_operation(operation, "instance creation")
+
+    print(f"Instance {instance_name} created.")
+    return instance_client.get(project=project_id, zone=zone, instance=instance_name)
+
+. 我有從 gcp 的 gcloud 參考指令集抓了一些預設參數給你參考，請把 python 程式碼按照這些 gcloud 的預設參數設定預設值，讓 python cli 如果沒有指定相關參數的時候可以使用類似於我下面張貼命令的預設值, 例如以下的預設值都可以在我張貼的 gcloud 命令找到，請把所有的 gcloud 下面的命令預設值都放到 python cli 預設參數
+
+. 預設開啟的時候請用 spot vm 或者先佔主機方式啟用
+. 預設要開啟 vm port 80 and port 443
+. 預設硬碟要用 standard 標準硬碟 10 gb
+. 預設作業系統是 debian 最新版本
+. 預設 zone 是 us-central1-a (lowa)
+. 先佔主機如果機器停止的時候請直接刪除該vm
+
+gcloud compute instances create instance-1 --project=falra-368206 --zone=us-central1-a --machine-type=t2d-standard-1 --network-interface=network-tier=PREMIUM,subnet=default --no-restart-on-failure --maintenance-policy=TERMINATE --provisioning-model=SPOT --instance-termination-action=DELETE --service-account=1037695533427-compute@developer.gserviceaccount.com --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append --tags=http-server,https-server --create-disk=auto-delete=yes,boot=yes,device-name=instance-1,image=projects/debian-cloud/global/images/debian-11-bullseye-v20230206,mode=rw,size=10,type=projects/falra-368206/zones/us-central1-a/diskTypes/pd-standard --no-shielded-secure-boot --shielded-vtpm --shielded-integrity-monitoring --reservation-affinity=any
 
 ### 2023-02-16 Bowen create first version by ChatGPT
