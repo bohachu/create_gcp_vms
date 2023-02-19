@@ -38,7 +38,7 @@ def create_instance(
         network_link: str = "global/networks/default",
         subnetwork_link: str = None,
         internal_ip: str = None,
-        external_access: bool = False,
+        external_access: bool = True,
         external_ipv4: str = None,
         accelerators: List[compute_v1.AcceleratorConfig] = None,
         preemptible: bool = False,
@@ -183,7 +183,7 @@ import threading
 def create_vms():
     threads = []
     startup_script = "#!/bin/bash\ntouch hihi.txt\nsudo apt-get update\nsudo apt-get install -y docker.io\nsudo docker run -d -p 80:80 nginx\n"
-    for i in range(1, 3):
+    for i in range(8, 9):
         vm_name = f"vm{i}"
 
         thread = threading.Thread(target=create_from_image,
