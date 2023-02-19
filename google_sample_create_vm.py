@@ -25,11 +25,11 @@ def get_image_from_family(project: str, family: str) -> compute_v1.Image:
 
 
 def disk_from_image(
-    disk_type: str,
-    disk_size_gb: int,
-    boot: bool,
-    source_image: str,
-    auto_delete: bool = True,
+        disk_type: str,
+        disk_size_gb: int,
+        boot: bool,
+        source_image: str,
+        auto_delete: bool = True,
 ) -> compute_v1.AttachedDisk:
     """
     Create an AttachedDisk object to be used in VM instance creation. Uses an image as the
@@ -63,7 +63,7 @@ def disk_from_image(
 
 
 def wait_for_extended_operation(
-    operation: ExtendedOperation, verbose_name: str = "operation", timeout: int = 300
+        operation: ExtendedOperation, verbose_name: str = "operation", timeout: int = 300
 ) -> Any:
     """
     Waits for the extended (long-running) operation to complete.
@@ -111,22 +111,22 @@ def wait_for_extended_operation(
 
 
 def create_instance(
-    project_id: str,
-    zone: str,
-    instance_name: str,
-    disks: List[compute_v1.AttachedDisk],
-    machine_type: str = "n1-standard-1",
-    network_link: str = "global/networks/default",
-    subnetwork_link: str = None,
-    internal_ip: str = None,
-    external_access: bool = False,
-    external_ipv4: str = None,
-    accelerators: List[compute_v1.AcceleratorConfig] = None,
-    preemptible: bool = False,
-    spot: bool = False,
-    instance_termination_action: str = "STOP",
-    custom_hostname: str = None,
-    delete_protection: bool = False,
+        project_id: str,
+        zone: str,
+        instance_name: str,
+        disks: List[compute_v1.AttachedDisk],
+        machine_type: str = "n1-standard-1",
+        network_link: str = "global/networks/default",
+        subnetwork_link: str = None,
+        internal_ip: str = None,
+        external_access: bool = False,
+        external_ipv4: str = None,
+        accelerators: List[compute_v1.AcceleratorConfig] = None,
+        preemptible: bool = False,
+        spot: bool = False,
+        instance_termination_action: str = "STOP",
+        custom_hostname: str = None,
+        delete_protection: bool = False,
 ) -> compute_v1.Instance:
     """
     Send an instance creation request to the Compute Engine API and wait for it to complete.
@@ -240,6 +240,7 @@ def create_instance(
 
     print(f"Instance {instance_name} created.")
     return instance_client.get(project=project_id, zone=zone, instance=instance_name)
+
 
 def main():
     import argparse
@@ -378,5 +379,6 @@ def main():
         delete_protection,
     )
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     main()
