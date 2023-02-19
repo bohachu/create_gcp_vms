@@ -3,7 +3,7 @@ from typing import Any
 
 from google.api_core.extended_operation import ExtendedOperation
 from google.cloud import compute_v1
-
+from google.oauth2 import service_account
 
 def wait_for_extended_operation(
         operation: ExtendedOperation, verbose_name: str = "operation", timeout: int = 300
@@ -93,7 +93,8 @@ def create_firewall_rule(
     # TODO: Uncomment to set the priority to 0
     # firewall_rule.priority = 0
 
-    firewall_client = compute_v1.FirewallsClient()
+    credentials = service_account.Credentials.from_service_account_file("key.json")
+    firewall_client = compute_v1.FirewallsClient(credentials=credentials)
     operation = firewall_client.insert(
         project=project_id, firewall_resource=firewall_rule
     )
