@@ -145,17 +145,17 @@ def disk_from_image(
 
 
 def create_from_image(
-        project_id: str, zone: str, instance_name: str, image_project: str, image_family: str
+        project_id: str, zone: str, instance_name: str, image: str, startup_script: str = None
 ):
     """
-    Create a new VM instance with a boot disk created from a public Debian image.
+    Create a new VM instance with a boot disk created from a public image.
 
     Args:
         project_id: project ID or project number of the Cloud project you want to use.
         zone: name of the zone to create the instance in. For example: "us-west3-b"
         instance_name: name of the new virtual machine (VM) instance.
-        image_project: the project ID of the public image project to use for the new instance
-        image_family: the name of the public image family to use for the new instance
+        image: the name of the public image to use for the new instance.
+        startup_script: the startup script to run when the instance starts up. Defaults to None.
 
     Returns:
         Instance object.
@@ -165,11 +165,17 @@ def create_from_image(
     disks[0].boot = True
     disks[0].auto_delete = True
     disks[0].initialize_params = compute_v1.AttachedDiskInitializeParams()
-    disks[0].initialize_params.source_image = f"projects/{image_project}/global/images/family/{image_family}"
+    disks[0].initialize_params.source_image = f"projects/{image}"
     disks[0].initialize_params.disk_type = disk_type
     disks[0].initialize_params.disk_size_gb = 10
 
-    instance = create_instance(project_id, zone, instance_name, disks)
+    if startup_script:
+        metadata = compute_v1.Metadata(items=[
+            compute_v1.MetadataItems(key="startup-script", value=startup_script)
+        ])
+        instance = create_instance(project_id, zone, instance_name, disks, metadata=metadata)
+    else:
+        instance = create_instance(project_id, zone, instance_name, disks)
 
     return instance
 
