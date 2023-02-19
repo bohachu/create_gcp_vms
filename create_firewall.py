@@ -1,7 +1,6 @@
 from pprint import pprint
 
 import google.auth
-from google.auth import credentials
 from googleapiclient import discovery
 from googleapiclient.errors import HttpError
 
@@ -38,7 +37,7 @@ def create_firewall(project):
 
     # credentials = GoogleCredentials.get_application_default()
 
-    creds, project_id = credentials.default()
+    creds, project_id = google.auth.default()
     service = discovery.build('compute', 'v1', credentials=creds)
 
     # 建立防火牆規則
