@@ -183,7 +183,7 @@ import threading
 def create_vms():
     threads = []
     startup_script = '''#!/bin/bash\nsudo docker run -d -p 80:80 nginx\n'''
-    for i in range(1, 3):
+    for i in range(4, 5):
         vm_name = f"vm{i}"
 
         thread = threading.Thread(target=create_from_image,
