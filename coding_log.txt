@@ -1,6 +1,9 @@
 ### 2023-02-19 13:20 成功
 . 改為 spot
-.
+. 17:06 已經完全成功可以 docker, nginx預設載入, https http 打開, spot
+. 碰到 新 t2d cpu 額度上限
+
+https://cloud.google.com/blog/products/compute/compute-engine-tau-t2d-vms-now-available-for-scale-out-workloads
 ### 2023-02-19 09:34 成功了
 import re
 import sys
