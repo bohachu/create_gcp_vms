@@ -8,6 +8,7 @@ from google.cloud import compute_v1
 from google.oauth2 import service_account
 from google.oauth2.service_account import Credentials
 
+
 def get_image_from_family(project: str, family: str, credentials: Credentials) -> compute_v1.Image:
     """
     Retrieve the newest image that is part of a given family in a project.
@@ -128,6 +129,7 @@ def create_instance(
         instance_termination_action: str = "STOP",
         custom_hostname: str = None,
         delete_protection: bool = False,
+        credentials=None
 ) -> compute_v1.Instance:
     """
     Send an instance creation request to the Compute Engine API and wait for it to complete.
@@ -169,7 +171,6 @@ def create_instance(
     Returns:
         Instance object.
     """
-    credentials = service_account.Credentials.from_service_account_file("key.json")
     instance_client = compute_v1.InstancesClient(credentials=credentials)
 
     # Use the network interface provided in the network_link argument.
@@ -346,7 +347,8 @@ def main():
     zone = args.zone
     instance_name = args.instance_name
 
-    image = get_image_from_family(project_id, image_family)
+    credentials = service_account.Credentials.from_service_account_file("key.json")
+    image = get_image_from_family(project_id, image_family, credentials)
     disk = disk_from_image(disk_type, disk_size_gb, True, image.self_link)
     accelerators = None
 
@@ -379,6 +381,7 @@ def main():
         instance_termination_action,
         custom_hostname,
         delete_protection,
+        credentials
     )
 
 
