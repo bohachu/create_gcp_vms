@@ -1,3 +1,4 @@
+import argparse
 import re
 import sys
 import threading
@@ -178,9 +179,9 @@ def create_from_image(
     return instance
 
 
-def create_vms(startup_script):
+def create_vms(startup_script, vm_number_start=1, vm_number_stop=30):
     threads = []
-    for i in range(1, 30):
+    for i in range(vm_number_start, vm_number_stop):
         vm_name = f"vm{i}"
         thread = threading.Thread(target=create_from_image,
                                   args=(
@@ -197,5 +198,12 @@ def create_vms(startup_script):
 
 
 if __name__ == '__main__':
-    startup_script = "#!/bin/bash\ntouch hihi.txt\nsudo apt-get update\nsudo apt-get install -y docker.io\nsudo docker run -d -p 80:80 nginx\n"
-    create_vms(startup_script)
+    parser = argparse.ArgumentParser(description='Create virtual machines.')
+    parser.add_argument('start', type=int, help='start number of virtual machines')
+    parser.add_argument('end', type=int, help='end number of virtual machines')
+    parser.add_argument('-s', '--script', type=str,
+                        default='#!/bin/bash\ntouch startup_script_success_run.txt\nsudo apt-get update\nsudo apt-get install -y docker.io\nsudo docker run -d -p 80:80 nginx\n',
+                        help='startup script for virtual machines')
+    args = parser.parse_args()
+
+    create_vms(args.script, args.start, args.end)
