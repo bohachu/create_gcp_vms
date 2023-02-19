@@ -24,7 +24,10 @@ DEFAULT_CREATE_TIMEOUT_SEC = 300
 
 
 def get_compute_client() -> compute_v1.InstancesClient:
-    return compute_v1.InstancesClient()
+    # return compute_v1.InstancesClient()
+    creds, project_id = google.auth.default()
+    compute = compute_v1.ComputeClient(credentials=creds)
+    return compute
 
 
 def get_image_from_family(project: str, family: str) -> compute_v1.Image:
@@ -244,5 +247,5 @@ if __name__ == '__main__':
     )
 
 '''
-python create_instances.py --project-id falra-368206 --zone us-central1-a --count 3 --machine-type t2d-standard-1 --network-link global/networks/default --image-family debian-11 --disk-size-gb 10 --disk-type pd-standard --boot-disk-auto-delete True --boot-disk-boot True --external-ip ephemeral --tags http-server https-server --create-disk "auto-delete=yes,boot=yes,device-name=instance-1,image=projects/debian-cloud/global/images/debian-11-bullseye-v20230206,mode=rw,size=10,type=projects/falra-368206/zones/us-central1-a/diskTypes/pd-standard" --no-shielded-secure-boot --shielded-vtpm --shielded-integrity-monitoring --reservation-affinity any
+python3 create_instances.py --project-id falra-368206 --zone us-central1-a --count 3 --machine-type t2d-standard-1 --network-link global/networks/default --image-family debian-11 --disk-size-gb 10 --disk-type pd-standard --boot-disk-auto-delete True --boot-disk-boot True --external-ip ephemeral --tags http-server https-server --create-disk "auto-delete=yes,boot=yes,device-name=instance-1,image=projects/debian-cloud/global/images/debian-11-bullseye-v20230206,mode=rw,size=10,type=projects/falra-368206/zones/us-central1-a/diskTypes/pd-standard" --no-shielded-secure-boot --shielded-vtpm --shielded-integrity-monitoring --reservation-affinity any
 '''
