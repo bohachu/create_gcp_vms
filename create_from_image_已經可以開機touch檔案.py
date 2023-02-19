@@ -66,8 +66,6 @@ def create_instance(
         access.network_tier = access.NetworkTier.PREMIUM.name
         if external_ipv4:
             access.nat_i_p = external_ipv4
-        access.allowed = [compute_v1.Allowed()]
-        access.allowed[0].ports = ["80", "443"]
         network_interface.access_configs = [access]
 
     # Collect information into the Instance object.
@@ -188,7 +186,7 @@ def create_vms():
 
         thread = threading.Thread(target=create_from_image,
                                   args=(
-                                      'plant-hero', 'us-central1-a', vm_name, 'debian-cloud', 'debian-11-bullseye',
+                                      'plant-hero', 'us-central1-a', vm_name, 'debian-cloud', 'debian-10',
                                       startup_script))
         thread.start()
         threads.append(thread)
