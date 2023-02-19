@@ -171,7 +171,7 @@ def create_from_image(
 
     if startup_script:
         metadata = compute_v1.Metadata(items=[
-            compute_v1.MetadataItems(key="startup-script", value=startup_script)
+            compute_v1.MetadataItem(key="startup-script", value=startup_script)
         ])
         instance = create_instance(project_id, zone, instance_name, disks, metadata=metadata)
     else:
@@ -180,6 +180,7 @@ def create_from_image(
     return instance
 
 
+# threading create VMs
 import threading
 
 
