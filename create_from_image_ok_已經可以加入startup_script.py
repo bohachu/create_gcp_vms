@@ -182,7 +182,7 @@ def create_vms():
     threads = []
     startup_script = """
 #!/usr/bin/env bash
-sudo echo "Hello Bowen > /root/hello_bowen.txt"
+echo "Hello Bowen > hello_bowen.txt"
         """
     for i in range(1, 3):
         vm_name = f"vm{i}"
