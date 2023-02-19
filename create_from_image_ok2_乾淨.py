@@ -46,7 +46,6 @@ def create_instance(
         instance_termination_action: str = "STOP",
         custom_hostname: str = None,
         delete_protection: bool = False,
-        metadata: compute_v1.Metadata = None,  # Add metadata parameter here
 ) -> compute_v1.Instance:
     instance_client = compute_v1.InstancesClient()
 
@@ -105,10 +104,6 @@ def create_instance(
         # Set the delete protection bit
         instance.deletion_protection = True
 
-    if metadata:
-        # Set the metadata for the instance
-        instance.metadata = metadata
-
     # Prepare the request to insert an instance.
     request = compute_v1.InsertInstanceRequest()
     request.zone = zone
@@ -150,7 +145,7 @@ def disk_from_image(
 
 
 def create_from_image(
-        project_id: str, zone: str, instance_name: str, image_project: str, image_family: str, startup_script: str
+        project_id: str, zone: str, instance_name: str, image_project: str, image_family: str
 ):
     disk_type = f"zones/{zone}/diskTypes/pd-standard"
     disks = [compute_v1.AttachedDisk()]
@@ -161,17 +156,8 @@ def create_from_image(
     disks[0].initialize_params.disk_type = disk_type
     disks[0].initialize_params.disk_size_gb = 10
 
-    if startup_script:
-        metadata = compute_v1.Metadata()
-        metadata.items = [
-            {
-                "key": "startup-script",
-                "value": '#!/usr/bin/env bash\necho "Hello Freddie"'
-            }
-        ]
-        instance = create_instance(project_id, zone, instance_name, disks, metadata=metadata)
-    else:
-        instance = create_instance(project_id, zone, instance_name, disks)
+    instance = create_instance(project_id, zone, instance_name, disks)
+
     return instance
 
 

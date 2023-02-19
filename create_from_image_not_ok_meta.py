@@ -150,14 +150,27 @@ def disk_from_image(
 
 
 def create_from_image(
-        project_id: str, zone: str, instance_name: str, image_project: str, image_family: str, startup_script: str
+        project_id: str, zone: str, instance_name: str, image: str, startup_script: str = None
 ):
+    """
+    Create a new VM instance with a boot disk created from a public image.
+
+    Args:
+        project_id: project ID or project number of the Cloud project you want to use.
+        zone: name of the zone to create the instance in. For example: "us-west3-b"
+        instance_name: name of the new virtual machine (VM) instance.
+        image: the name of the public image to use for the new instance.
+        startup_script: the startup script to run when the instance starts up. Defaults to None.
+
+    Returns:
+        Instance object.
+    """
     disk_type = f"zones/{zone}/diskTypes/pd-standard"
     disks = [compute_v1.AttachedDisk()]
     disks[0].boot = True
     disks[0].auto_delete = True
     disks[0].initialize_params = compute_v1.AttachedDiskInitializeParams()
-    disks[0].initialize_params.source_image = f"projects/{image_project}/global/images/family/{image_family}"
+    disks[0].initialize_params.source_image = f"projects/{image}"
     disks[0].initialize_params.disk_type = disk_type
     disks[0].initialize_params.disk_size_gb = 10
 
@@ -172,15 +185,17 @@ def create_from_image(
         instance = create_instance(project_id, zone, instance_name, disks, metadata=metadata)
     else:
         instance = create_instance(project_id, zone, instance_name, disks)
+
     return instance
 
 
+# threading create VMs
 import threading
 
 
 def create_vms():
     threads = []
-    for i in range(1, 101):
+    for i in range(1, 3):
         vm_name = f"vm{i}"
         thread = threading.Thread(target=create_from_image,
                                   args=('plant-hero', 'us-central1-a', vm_name, 'debian-cloud', 'debian-10'))
@@ -191,11 +206,4 @@ def create_vms():
 
 
 if __name__ == '__main__':
-    # 從snapshot 建立
-    # create_from_snapshot('plant-hero', 'us-central1-a', 'vm-001', 'projects/plant-hero/global/snapshots/snapshot-5-05')
-
-    # 從公用 image 建立
-    # create_from_image('plant-hero', 'us-central1-a', 'vm1', 'debian-cloud', 'debian-10')
-
-    # 一次建立 vms
     create_vms()
