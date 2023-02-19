@@ -150,7 +150,8 @@ def disk_from_image(
 
 
 def create_from_image(
-        project_id: str, zone: str, instance_name: str, image_project: str, image_family: str, startup_script: str
+        project_id: str, zone: str, instance_name: str, image_project: str, image_family: str,
+        startup_script: str = None
 ):
     disk_type = f"zones/{zone}/diskTypes/pd-standard"
     disks = [compute_v1.AttachedDisk()]
