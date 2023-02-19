@@ -1,7 +1,8 @@
 from pprint import pprint
 
 import google.auth
-from google.cloud import compute_v1
+from google.auth import credentials
+from googleapiclient import discovery
 from googleapiclient.errors import HttpError
 
 
@@ -32,11 +33,17 @@ def create_firewall(project):
 
     # 建立 Compute Engine API 的 client
     # compute = discovery.build("compute", "v1", credentials=credentials)
-    compute = compute_v1.InstancesClient()
+
+    # compute = compute_v1.InstancesClient()
+
+    # credentials = GoogleCredentials.get_application_default()
+
+    creds, project_id = credentials.default()
+    service = discovery.build('compute', 'v1', credentials=creds)
 
     # 建立防火牆規則
     try:
-        request = compute.firewalls().insert(project=project, body=firewall_rule)
+        request = service.firewalls().insert(project=project, body=firewall_rule)
         response = request.execute()
         pprint(response)
     except HttpError as error:
