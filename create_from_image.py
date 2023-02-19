@@ -46,6 +46,7 @@ def create_instance(
         instance_termination_action: str = "STOP",
         custom_hostname: str = None,
         delete_protection: bool = False,
+        metadata: compute_v1.Metadata = None,  # Add metadata parameter here
 ) -> compute_v1.Instance:
     instance_client = compute_v1.InstancesClient()
 
@@ -103,6 +104,10 @@ def create_instance(
     if delete_protection:
         # Set the delete protection bit
         instance.deletion_protection = True
+
+    if metadata:
+        # Set the metadata for the instance
+        instance.metadata = metadata
 
     # Prepare the request to insert an instance.
     request = compute_v1.InsertInstanceRequest()
