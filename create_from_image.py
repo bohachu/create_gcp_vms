@@ -163,12 +163,14 @@ def create_from_image(
 
     if startup_script:
         metadata = compute_v1.Metadata()
-        metadata.items = [
-            {
-                "key": "startup-script",
-                "value": '#!/usr/bin/env bash\necho "Hello Freddie"'
-            }
-        ]
+
+        items = compute_v1.types.Items()
+        items.key = "startup-script"
+        items.value = """
+#!/usr/bin/env bash
+echo "Hello Freddie > a.txt"
+        """
+        metadata.items = [items]
         instance = create_instance(project_id, zone, instance_name, disks, metadata=metadata)
     else:
         instance = create_instance(project_id, zone, instance_name, disks)
