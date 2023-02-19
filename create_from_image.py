@@ -317,4 +317,5 @@ def create_from_image(
 
 if __name__ == '__main__':
     # create_from_snapshot('plant-hero', 'us-central1-a', 'vm-001', 'projects/plant-hero/global/snapshots/snapshot-5-05')
-    create_from_image('plant-hero', 'us-central1-a', 'vm1', 'debian-cloud', 'debian-10')
+    # create_from_image('plant-hero', 'us-central1-a', 'vm1', 'debian-cloud', 'debian-10')
+    create_from_image('plant-hero', 'us-central1-a', 'vm1', 'gcr.io/cloud-marketplace/google/nginx1:latest', 'nginx-vm')
