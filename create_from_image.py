@@ -70,7 +70,7 @@ def create_instance(
 
         firewall_client = compute_v1.FirewallsClient()
         firewall_rule = compute_v1.Firewall(
-            allowed=[compute_v1.Allowed(
+            allowed=[compute_v1.Firewall.Allowed(
                 IPProtocol="tcp",
                 ports=["80", "443"]
             )],
