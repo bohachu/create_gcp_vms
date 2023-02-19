@@ -325,6 +325,7 @@ async def create_vms():
     tasks = []
     for i in range(1, 31):
         vm_name = f"vm{i}"
+        print(vm_name)
         task = loop.create_task(create_from_image('plant-hero', 'us-central1-a', vm_name, 'debian-cloud', 'debian-10'))
         tasks.append(task)
     await asyncio.gather(*tasks)
