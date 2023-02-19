@@ -241,3 +241,142 @@ def create_instance(
     print(f"Instance {instance_name} created.")
     return instance_client.get(project=project_id, zone=zone, instance=instance_name)
 
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Create a Compute Engine instance")
+    parser.add_argument("project_id", help="ID of the project to create the instance in")
+    parser.add_argument("zone", help="Name of the zone to create the instance in")
+    parser.add_argument("instance_name", help="Name of the new virtual machine (VM) instance")
+    parser.add_argument(
+        "--family",
+        help="Name of the image family to use when creating the boot disk",
+        default="debian-10",
+    )
+    parser.add_argument(
+        "--disk-size-gb",
+        help="Size of the new disk in gigabytes",
+        type=int,
+        default=10,
+    )
+    parser.add_argument(
+        "--disk-type",
+        help="Type of disk to create",
+        default="pd-standard",
+    )
+    parser.add_argument(
+        "--machine-type",
+        help="Machine type of the VM being created",
+        default="n1-standard-1",
+    )
+    parser.add_argument(
+        "--network",
+        help="Name of the network to use for the new instance",
+        default="default",
+    )
+    parser.add_argument(
+        "--subnetwork",
+        help="Name of the subnetwork to use for the new instance",
+    )
+    parser.add_argument(
+        "--internal-ip",
+        help="Internal IP address to assign to the new instance",
+    )
+    parser.add_argument(
+        "--external-access",
+        help="Assign an external IPv4 address to the new instance",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--external-ipv4",
+        help="External IPv4 address to assign to the new instance",
+    )
+    parser.add_argument(
+        "--accelerator",
+        help="Accelerator type to attach to the new instance",
+        action="append",
+    )
+    parser.add_argument(
+        "--preemptible",
+        help="Create a preemptible VM",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--spot",
+        help="Create a Spot VM",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--instance-termination-action",
+        help="Action to take when a Spot VM is terminated",
+        choices=["STOP", "DELETE"],
+        default="STOP",
+    )
+    parser.add_argument(
+        "--custom-hostname",
+        help="Custom hostname of the new VM instance",
+    )
+    parser.add_argument(
+        "--delete-protection",
+        help="Enable delete protection for the new VM instance",
+        action="store_true",
+    )
+
+    args = parser.parse_args()
+
+    image_family = args.family
+    disk_size_gb = args.disk_size_gb
+    disk_type = f"zones/{args.zone}/diskTypes/{args.disk_type}"
+    machine_type = f"zones/{args.zone}/machineTypes/{args.machine_type}"
+    network_link = f"global/networks/{args.network}"
+    subnetwork_link = None if args.subnetwork is None else f"regions/{args.zone[:-2]}/{args.subnetwork}"
+    internal_ip = args.internal_ip
+    external_access = args.external_access
+    external_ipv4 = args.external_ipv4
+    preemptible = args.preemptible
+    spot = args.spot
+    instance_termination_action = args.instance_termination_action
+    custom_hostname = args.custom_hostname
+    delete_protection = args.delete_protection
+
+    project_id = args.project_id
+    zone = args.zone
+    instance_name = args.instance_name
+
+    image = get_image_from_family(project_id, image_family)
+    disk = disk_from_image(disk_type, disk_size_gb, True, image.self_link)
+    accelerators = None
+
+    if args.accelerator:
+        accelerators = [
+            compute_v1.AcceleratorConfig(
+                accelerator_count=1,
+                **{
+                    "accelerator_type": a.split(":")[-1],
+                    "guest_accelerator_count": 1,
+                },
+            )
+            for a in args.accelerator
+        ]
+
+    create_instance(
+        project_id,
+        zone,
+        instance_name,
+        [disk],
+        machine_type,
+        network_link,
+        subnetwork_link,
+        internal_ip,
+        external_access,
+        external_ipv4,
+        accelerators,
+        preemptible,
+        spot,
+        instance_termination_action,
+        custom_hostname,
+        delete_protection,
+    )
+
+if __name__=='__main__':
+    main()
