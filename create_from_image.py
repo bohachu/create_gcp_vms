@@ -188,7 +188,11 @@ def create_vms():
 
         thread = threading.Thread(target=create_from_image,
                                   args=(
-                                      'plant-hero', 'us-central1-a', vm_name, 'debian-cloud', 'debian-11-bullseye',
+                                      'plant-hero',
+                                      'us-central1-a',
+                                      vm_name,
+                                      'cos-cloud',
+                                      'cos-stable',
                                       startup_script))
         thread.start()
         threads.append(thread)
