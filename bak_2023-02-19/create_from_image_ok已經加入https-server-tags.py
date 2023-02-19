@@ -1,6 +1,5 @@
 import re
 import sys
-import threading
 import warnings
 from typing import Any, List
 
@@ -131,6 +130,8 @@ def create_instance(
     return instance_client.get(project=project_id, zone=zone, instance=instance_name)
 
 
+### 以下增添從公用 image 建立的功能
+
 def disk_from_image(
         disk_type: str,
         disk_size_gb: int,
@@ -178,10 +179,15 @@ def create_from_image(
     return instance
 
 
-def create_vms(startup_script):
+import threading
+
+
+def create_vms():
     threads = []
-    for i in range(1, 30):
+    startup_script = "#!/bin/bash\ntouch hihi.txt\nsudo apt-get update\nsudo apt-get install -y docker.io\nsudo docker run -d -p 80:80 nginx\n"
+    for i in range(9, 10):
         vm_name = f"vm{i}"
+
         thread = threading.Thread(target=create_from_image,
                                   args=(
                                       'plant-hero',
@@ -197,5 +203,11 @@ def create_vms(startup_script):
 
 
 if __name__ == '__main__':
-    startup_script = "#!/bin/bash\ntouch hihi.txt\nsudo apt-get update\nsudo apt-get install -y docker.io\nsudo docker run -d -p 80:80 nginx\n"
-    create_vms(startup_script)
+    # 從snapshot 建立
+    # create_from_snapshot('plant-hero', 'us-central1-a', 'vm-001', 'projects/plant-hero/global/snapshots/snapshot-5-05')
+
+    # 從公用 image 建立
+    # create_from_image('plant-hero', 'us-central1-a', 'vm1', 'debian-cloud', 'debian-10')
+
+    # 一次建立 vms
+    create_vms()
