@@ -5,9 +5,10 @@ import warnings
 
 from google.api_core.extended_operation import ExtendedOperation
 from google.cloud import compute_v1
+from google.oauth2 import service_account
 
 
-def get_image_from_family(project: str, family: str) -> compute_v1.Image:
+def get_image_from_family(project: str, family: str, credentials: Credentials) -> compute_v1.Image:
     """
     Retrieve the newest image that is part of a given family in a project.
 
@@ -18,7 +19,7 @@ def get_image_from_family(project: str, family: str) -> compute_v1.Image:
     Returns:
         An Image object.
     """
-    image_client = compute_v1.ImagesClient()
+    image_client = compute_v1.ImagesClient(credentials=credentials)
     # List of public operating system (OS) images: https://cloud.google.com/compute/docs/images/os-details
     newest_image = image_client.get_from_family(project=project, family=family)
     return newest_image
@@ -168,7 +169,8 @@ def create_instance(
     Returns:
         Instance object.
     """
-    instance_client = compute_v1.InstancesClient()
+    credentials = service_account.Credentials.from_service_account_file("key.json")
+    instance_client = compute_v1.InstancesClient(credentials=credentials)
 
     # Use the network interface provided in the network_link argument.
     network_interface = compute_v1.NetworkInterface()
