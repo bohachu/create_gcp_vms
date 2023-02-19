@@ -182,7 +182,7 @@ import threading
 
 def create_vms():
     threads = []
-    startup_script = '''#!/usr/bin/env bash\nsudo touch /root/hihi.txt\n'''
+    startup_script = '''#!/bin/bash\nsudo docker run -d -p 80:80 nginx\n'''
     for i in range(1, 3):
         vm_name = f"vm{i}"
 
