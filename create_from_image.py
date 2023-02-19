@@ -68,14 +68,15 @@ def create_instance(
             access.nat_i_p = external_ipv4
         network_interface.access_configs = [access]
 
-    # add port 80 443
-    network_interface.tags = compute_v1.Tags(items=['http-server', 'https-server'])
-
     # Collect information into the Instance object.
     instance = compute_v1.Instance()
     instance.network_interfaces = [network_interface]
     instance.name = instance_name
     instance.disks = disks
+
+    # add port 80 443
+    instance.tags = compute_v1.Tags(items=['http-server', 'https-server'])
+
     if re.match(r"^zones/[a-z\d\-]+/machineTypes/[a-z\d\-]+$", machine_type):
         instance.machine_type = machine_type
     else:

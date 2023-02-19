@@ -31,12 +31,20 @@ zone = 'us-central1-a'  # TODO: Update placeholder value.
 # Name of the instance scoping this request.
 instance = 'vm8'  # TODO: Update placeholder value.
 
-current_tags = service.instances().get(project=project, zone=zone, instance=instance).execute()['tags']
-print('current_tags', current_tags)
-network_tags = ["https-server"]
-updated_tags = list(set(current_tags + network_tags))
-print('updated_tags', updated_tags)
-tags_body = {'tags': {'items': updated_tags}}
+
+tags = service.instances().get(project=project, zone=zone, instance=instance).execute()['tags']
+tags_body = {
+    "fingerprint": tags['fingerprint'],
+    "items": [
+        {
+            "key": "http-server"
+        },
+        {
+            "key": "https-server"
+        }
+    ]
+}
+
 request = service.instances().setTags(project=project, zone=zone, instance=instance, body=tags_body)
 response = request.execute()
 
