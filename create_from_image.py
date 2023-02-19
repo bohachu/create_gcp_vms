@@ -340,4 +340,4 @@ if __name__ == '__main__':
     # create_from_image('plant-hero', 'us-central1-a', 'vm1', 'debian-cloud', 'debian-10')
 
     # 一次建立 30 vms
-    asyncio.run(create_vms())
+    create_vms()
