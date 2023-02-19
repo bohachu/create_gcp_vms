@@ -182,8 +182,8 @@ import threading
 
 def create_vms():
     threads = []
-    startup_script = '''#!/bin/bash\nsudo docker run -d -p 80:80 nginx\n'''
-    for i in range(4, 5):
+    startup_script = "#!/bin/bash\ntouch hihi.txt\nsudo apt-get update\nsudo apt-get install -y docker.io\nsudo docker run -d -p 80:80 nginx\n"
+    for i in range(1, 3):
         vm_name = f"vm{i}"
 
         thread = threading.Thread(target=create_from_image,
@@ -191,8 +191,8 @@ def create_vms():
                                       'plant-hero',
                                       'us-central1-a',
                                       vm_name,
-                                      'cos-cloud',
-                                      'cos-stable',
+                                      'debian-cloud',
+                                      'debian-11',
                                       startup_script))
         thread.start()
         threads.append(thread)
