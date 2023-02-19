@@ -68,21 +68,6 @@ def create_instance(
             access.nat_i_p = external_ipv4
         network_interface.access_configs = [access]
 
-        firewall_client = compute_v1.FirewallsClient()
-        firewall_rule = compute_v1.Firewall(
-            allowed=[compute_v1.Firewall.Allowed(
-                IPProtocol="tcp",
-                ports=["80", "443"]
-            )],
-            direction=compute_v1.Firewall.Direction.INGRESS,
-            priority=1000,
-            network=network_link,
-            source_ranges=["0.0.0.0/0"],
-            target_tags=[instance_name]
-        )
-        operation = firewall_client.insert(project=project_id, firewall_resource=firewall_rule)
-        wait_for_extended_operation(operation, "firewall rule creation")
-
     # Collect information into the Instance object.
     instance = compute_v1.Instance()
     instance.network_interfaces = [network_interface]
