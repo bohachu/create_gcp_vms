@@ -180,7 +180,7 @@ import threading
 
 def create_vms():
     threads = []
-    for i in range(1, 101):
+    for i in range(1, 3):
         vm_name = f"vm{i}"
         thread = threading.Thread(target=create_from_image,
                                   args=('plant-hero', 'us-central1-a', vm_name, 'debian-cloud', 'debian-10'))
