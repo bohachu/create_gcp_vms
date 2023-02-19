@@ -317,18 +317,19 @@ def create_from_image(
     return instance
 
 
-import asyncio
+import threading
 
 
-async def create_vms():
-    loop = asyncio.get_event_loop()
-    tasks = []
+def create_vms():
+    threads = []
     for i in range(1, 31):
         vm_name = f"vm{i}"
-        print(vm_name)
-        task = loop.create_task(create_from_image('plant-hero', 'us-central1-a', vm_name, 'debian-cloud', 'debian-10'))
-        tasks.append(task)
-    await asyncio.gather(*tasks)
+        thread = threading.Thread(target=create_from_image,
+                                  args=('plant-hero', 'us-central1-a', vm_name, 'debian-cloud', 'debian-10'))
+        thread.start()
+        threads.append(thread)
+    for thread in threads:
+        thread.join()
 
 
 if __name__ == '__main__':
