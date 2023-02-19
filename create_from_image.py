@@ -167,10 +167,7 @@ def create_from_image(
 
         items = compute_v1.types.Items()
         items.key = "startup-script"
-        items.value = """
-#!/usr/bin/env bash
-echo "Hello Freddie > a.txt"
-        """
+        items.value = startup_script
         metadata.items = [items]
         instance = create_instance(project_id, zone, instance_name, disks, metadata=metadata)
     else:
@@ -183,10 +180,16 @@ import threading
 
 def create_vms():
     threads = []
+    startup_script = """
+#!/usr/bin/env bash
+echo "Hello Bowen > hello_bowen.txt"
+        """
     for i in range(1, 3):
         vm_name = f"vm{i}"
+
         thread = threading.Thread(target=create_from_image,
-                                  args=('plant-hero', 'us-central1-a', vm_name, 'debian-cloud', 'debian-10'))
+                                  args=(
+                                  'plant-hero', 'us-central1-a', vm_name, 'debian-cloud', 'debian-10', startup_script))
         thread.start()
         threads.append(thread)
     for thread in threads:
