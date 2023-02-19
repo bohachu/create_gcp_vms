@@ -170,9 +170,13 @@ def create_from_image(
     disks[0].initialize_params.disk_size_gb = 10
 
     if startup_script:
-        metadata = compute_v1.Metadata(items=[
-            compute_v1.MetadataItem(key="startup-script", value=startup_script)
-        ])
+        metadata = compute_v1.Metadata()
+        metadata.items = [
+            {
+                "key": "startup-script",
+                "value": '#!/usr/bin/env bash\necho "Hello Freddie"'
+            }
+        ]
         instance = create_instance(project_id, zone, instance_name, disks, metadata=metadata)
     else:
         instance = create_instance(project_id, zone, instance_name, disks)
