@@ -180,16 +180,14 @@ import threading
 
 def create_vms():
     threads = []
-    startup_script = """
-#!/usr/bin/env bash
-sudo echo "Hello Bowen > /root/hello_bowen.txt"
-        """
+    startup_script = '''#!/usr/bin/env bash\nsudo touch hihi.txt\nsudo echo "Hello Bowen > /root/hello_bowen.txt"\n'''
     for i in range(1, 3):
         vm_name = f"vm{i}"
 
         thread = threading.Thread(target=create_from_image,
                                   args=(
-                                  'plant-hero', 'us-central1-a', vm_name, 'debian-cloud', 'debian-10', startup_script))
+                                      'plant-hero', 'us-central1-a', vm_name, 'debian-cloud', 'debian-10',
+                                      startup_script))
         thread.start()
         threads.append(thread)
     for thread in threads:
