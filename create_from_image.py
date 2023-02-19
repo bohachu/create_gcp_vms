@@ -68,6 +68,30 @@ def create_instance(
             access.nat_i_p = external_ipv4
         network_interface.access_configs = [access]
 
+        # Add firewall rule for port 80
+        http_firewall_rule = compute_v1.Firewall()
+        http_firewall_rule.name = f'http-{instance_name}'
+        http_firewall_rule.direction = 'INGRESS'
+        http_firewall_rule.action = 'ALLOW'
+        http_firewall_rule.priority = 1000
+        http_firewall_rule.source_ranges = ['0.0.0.0/0']
+        http_firewall_rule.allowed = [compute_v1.Firewall.Allowed.IPProtocol('tcp'), compute_v1.Firewall.Allowed.Ports('80')]
+        http_firewall_rule.target_tags = [instance_name]
+        http_firewall_rule_client = compute_v1.FirewallsClient()
+        http_firewall_rule_client.insert(project=project_id, firewall_resource=http_firewall_rule)
+
+        # Add firewall rule for port 443
+        https_firewall_rule = compute_v1.Firewall()
+        https_firewall_rule.name = f'https-{instance_name}'
+        https_firewall_rule.direction = 'INGRESS'
+        https_firewall_rule.action = 'ALLOW'
+        https_firewall_rule.priority = 1000
+        https_firewall_rule.source_ranges = ['0.0.0.0/0']
+        https_firewall_rule.allowed = [compute_v1.Firewall.Allowed.IPProtocol('tcp'), compute_v1.Firewall.Allowed.Ports('443')]
+        https_firewall_rule.target_tags = [instance_name]
+        https_firewall_rule_client = compute_v1.FirewallsClient()
+        https_firewall_rule_client.insert(project=project_id, firewall_resource=https_firewall_rule)
+
     # Collect information into the Instance object.
     instance = compute_v1.Instance()
     instance.network_interfaces = [network_interface]
