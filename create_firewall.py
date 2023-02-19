@@ -37,7 +37,9 @@ def create_firewall(project):
 
     # credentials = GoogleCredentials.get_application_default()
 
-    creds, project_id = google.auth.default()
+    creds, project_id = google.auth.default(
+        scopes=['https://www.googleapis.com/auth/cloud-platform', 'https://www.googleapis.com/auth/compute']
+    )
     service = discovery.build('compute', 'v1', credentials=creds)
 
     # 建立防火牆規則
