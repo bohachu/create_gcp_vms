@@ -182,7 +182,7 @@ def create_from_image(
 def create_vms(startup_script, vm_number_start=1, vm_number_stop=30):
     threads = []
     for i in range(vm_number_start, vm_number_stop):
-        vm_name = f"vm{i}"
+        vm_name = f"vm-{i}"
         thread = threading.Thread(target=create_from_image,
                                   args=(
                                       'plant-hero',
@@ -202,7 +202,14 @@ if __name__ == '__main__':
     parser.add_argument('start', type=int, help='start number of virtual machines')
     parser.add_argument('end', type=int, help='end number of virtual machines')
     parser.add_argument('-s', '--script', type=str,
-                        default='#!/bin/bash\ntouch startup_script_success_run.txt\nsudo apt-get update\nsudo apt-get install -y docker.io\nsudo docker run -d -p 80:80 nginx\n',
+                        default='''#!/bin/bash
+                        touch startup_script_success_run.txt
+                        sudo apt-get update
+                        sudo apt-get install -y docker.io
+                        sudo docker run -d -p 80:80 nginx
+                        sudo apt install -y python3 python3-pip
+                        sudo python3 -m pip install ray
+                        ''',
                         help='startup script for virtual machines')
     args = parser.parse_args()
 
