@@ -6,7 +6,7 @@ import warnings
 from google.api_core.extended_operation import ExtendedOperation
 from google.cloud import compute_v1
 from google.oauth2 import service_account
-
+from google.oauth2.service_account import Credentials
 
 def get_image_from_family(project: str, family: str, credentials: Credentials) -> compute_v1.Image:
     """
