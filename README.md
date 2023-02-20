@@ -1,8 +1,56 @@
-### GCP 建立虛擬機器腳本
+### GCP Virtual Machine Creation Script
+This is a Python script for creating multiple virtual machines with custom startup scripts on GCP. You can easily create multiple VMs using this script.
+
+### How to Use
+This script requires the use of the gcloud tool to get create VM permissions:
+```
+gcloud auth
+```
+
+Use the following command to create virtual machines in the command line:
+```
+python create_gcp_vms.py --start <start_number> --end <end_number> --script <startup_script> --project <project_id> --zone <zone> --image-project <image_project> --image-family <image_family> --name-prefix <name_prefix>
+```
+
+The meanings of these parameters are as follows:
+* start: The starting number of the virtual machine. The default value is 1.
+* end: The ending number of the virtual machine. The default value is 2.
+* script: The startup script of the virtual machine. The default is a script that installs the Docker and Ray libraries.
+* project: Your GCP project ID. The default is plant-hero.
+* zone: The region where the virtual machine is located. The default is us-central1-a.
+* image-project: The project ID used to create the image for the virtual machine. The default is debian-cloud.
+* image-family: The image family used to create the virtual machine. The default is debian-11.
+* name-prefix: The prefix for the name of the virtual machine. The default is vm-.
+
+### Example
+The following example creates 3 virtual machines using a custom startup script:
+
+```
+python create_gcp_vms.py --start 1 --end 3 --script "#!/bin/bash
+touch test.txt"
+```
+### Difficulties and Solutions Encountered in Writing This Script
+* Google Cloud Platform has limitations on the t2d-standard-1 type, which offers the best value for money.
+* Each t2d-standard-1 Spot VM costs 5.05 USD per month, and each project can have a maximum of 24 VMs. After requesting an increase to 700, Google only allowed a maximum of 500 VMs per project.
+* Initially, I didn't know why port 80 and 443 couldn't be accessed. Later, I found out that the network tags https_server and http_server needed to be added.
+* Initially, I didn't know how to install Docker by default, but I later found out that the startup_script can complete any installation or action after the VM is started.
+* Initially, I couldn't start multiple VMs at the same time. Later, I switched to threading to solve this problem and avoid the slow startup of one VM after another.
+* Used ChatGPT to help design the CLI parameters.
+* Initially, ChatGPT always gave me old, incorrect code. I downloaded the latest GCP API and taught ChatGPT how to write the code.
+* Take small steps and don't design the entire architecture at once. Test one function at a time before expanding, or debugging will be difficult.
+
+### Todo
+* Output the started VM as a JSON message to announce the Public IP and Private IP to the caller for use.
+* Write it as a Python package that can be installed with pip install.
+
+### 中文版本：GCP 建立虛擬機器腳本
 這是一個用於在 GCP 上建立多台虛擬機器的 Python 腳本。您可以使用這個腳本輕鬆地建立多台具有自定義啟動腳本的虛擬機器。
 
 ### 如何使用
-這個腳本需要使用 gcloud 工具，所以在使用之前，請確保您已經安裝了這個工具。
+這個腳本需要使用 gcloud 工具，所以在使用之前，請確保您已經安裝了這個工具。要擁有建立 GCP VM 的權限認證：
+```
+gcloud auth
+```
 
 在命令列中使用以下指令來建立虛擬機器：
 ```
