@@ -43,6 +43,8 @@ touch test.txt"
 * Output the started VM as a JSON message to announce the Public IP and Private IP to the caller for use.
 * Write it as a Python package that can be installed with pip install.
 
+---
+
 ### 中文版本：GCP 建立虛擬機器腳本
 這是一個用於在 GCP 上建立多台虛擬機器的 Python 腳本。您可以使用這個腳本輕鬆地建立多台具有自定義啟動腳本的虛擬機器。
 
