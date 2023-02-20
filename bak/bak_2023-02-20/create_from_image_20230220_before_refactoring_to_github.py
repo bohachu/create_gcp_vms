@@ -8,9 +8,6 @@ from typing import Any, List
 from google.api_core.extended_operation import ExtendedOperation
 from google.cloud import compute_v1
 
-import argparse
-import threading
-
 
 def wait_for_extended_operation(
         operation: ExtendedOperation, verbose_name: str = "operation", timeout: int = 300
@@ -182,19 +179,19 @@ def create_from_image(
     return instance
 
 
-def create_vm(project_id, zone, vm_name, image_project, image_family, startup_script):
-    thread = threading.Thread(target=create_from_image,
-                              args=(project_id, zone, vm_name, image_project, image_family, startup_script))
-    thread.start()
-    return thread
-
-
-def create_multiple_vms(start, end, name_prefix, project_id='plant-hero', zone='us-central1-a',
-                        image_project='debian-cloud', image_family='debian-11', startup_script=None):
+def create_vms(startup_script, vm_number_start=1, vm_number_stop=30):
     threads = []
-    for i in range(start, end + 1):
-        vm_name = f"{name_prefix}{i}"
-        thread = create_vm(project_id, zone, vm_name, image_project, image_family, startup_script)
+    for i in range(vm_number_start, vm_number_stop):
+        vm_name = f"vm-{i}"
+        thread = threading.Thread(target=create_from_image,
+                                  args=(
+                                      'plant-hero',
+                                      'us-central1-a',
+                                      vm_name,
+                                      'debian-cloud',
+                                      'debian-11',
+                                      startup_script))
+        thread.start()
         threads.append(thread)
     for thread in threads:
         thread.join()
@@ -214,12 +211,6 @@ if __name__ == '__main__':
                         sudo python3 -m pip install ray
                         ''',
                         help='startup script for virtual machines')
-    parser.add_argument('-p', '--project', type=str, default='plant-hero', help='project ID')
-    parser.add_argument('-z', '--zone', type=str, default='us-central1-a', help='zone')
-    parser.add_argument('-i', '--image-project', type=str, default='debian-cloud', help='image project')
-    parser.add_argument('-f', '--image-family', type=str, default='debian-11', help='image family')
-    parser.add_argument('-n', '--name-prefix', type=str, default='vm-', help='prefix for vm name')
     args = parser.parse_args()
 
-    create_multiple_vms(args.start, args.end, args.name_prefix, args.project, args.zone, args.image_project,
-                        args.image_family, args.script)
+    create_vms(args.script, args.start, args.end)

@@ -1,15 +1,10 @@
-import argparse
 import re
 import sys
-import threading
-import warnings
 from typing import Any, List
+import warnings
 
 from google.api_core.extended_operation import ExtendedOperation
 from google.cloud import compute_v1
-
-import argparse
-import threading
 
 
 def wait_for_extended_operation(
@@ -43,15 +38,14 @@ def create_instance(
         network_link: str = "global/networks/default",
         subnetwork_link: str = None,
         internal_ip: str = None,
-        external_access: bool = True,
+        external_access: bool = False,
         external_ipv4: str = None,
         accelerators: List[compute_v1.AcceleratorConfig] = None,
-        preemptible: bool = False,
-        spot: bool = True,
+        preemptible: bool = True,
+        spot: bool = False,
         instance_termination_action: str = "STOP",
         custom_hostname: str = None,
         delete_protection: bool = False,
-        metadata: compute_v1.Metadata = None,  # Add metadata parameter here
 ) -> compute_v1.Instance:
     instance_client = compute_v1.InstancesClient()
 
@@ -78,10 +72,6 @@ def create_instance(
     instance.network_interfaces = [network_interface]
     instance.name = instance_name
     instance.disks = disks
-
-    # add port 80 443
-    instance.tags = compute_v1.Tags(items=['http-server', 'https-server'])
-
     if re.match(r"^zones/[a-z\d\-]+/machineTypes/[a-z\d\-]+$", machine_type):
         instance.machine_type = machine_type
     else:
@@ -114,10 +104,6 @@ def create_instance(
         # Set the delete protection bit
         instance.deletion_protection = True
 
-    if metadata:
-        # Set the metadata for the instance
-        instance.metadata = metadata
-
     # Prepare the request to insert an instance.
     request = compute_v1.InsertInstanceRequest()
     request.zone = zone
@@ -134,6 +120,8 @@ def create_instance(
     print(f"Instance {instance_name} created.")
     return instance_client.get(project=project_id, zone=zone, instance=instance_name)
 
+
+### 以下增添從公用 image 建立的功能
 
 def disk_from_image(
         disk_type: str,
@@ -157,9 +145,21 @@ def disk_from_image(
 
 
 def create_from_image(
-        project_id: str, zone: str, instance_name: str, image_project: str, image_family: str,
-        startup_script: str = None
+        project_id: str, zone: str, instance_name: str, image_project: str, image_family: str
 ):
+    """
+    Create a new VM instance with a boot disk created from a public Debian image.
+
+    Args:
+        project_id: project ID or project number of the Cloud project you want to use.
+        zone: name of the zone to create the instance in. For example: "us-west3-b"
+        instance_name: name of the new virtual machine (VM) instance.
+        image_project: the project ID of the public image project to use for the new instance
+        image_family: the name of the public image family to use for the new instance
+
+    Returns:
+        Instance object.
+    """
     disk_type = f"zones/{zone}/diskTypes/pd-standard"
     disks = [compute_v1.AttachedDisk()]
     disks[0].boot = True
@@ -169,57 +169,25 @@ def create_from_image(
     disks[0].initialize_params.disk_type = disk_type
     disks[0].initialize_params.disk_size_gb = 10
 
-    if startup_script:
-        metadata = compute_v1.Metadata()
+    instance = create_instance(project_id, zone, instance_name, disks)
 
-        items = compute_v1.types.Items()
-        items.key = "startup-script"
-        items.value = startup_script
-        metadata.items = [items]
-        instance = create_instance(project_id, zone, instance_name, disks, metadata=metadata)
-    else:
-        instance = create_instance(project_id, zone, instance_name, disks)
     return instance
 
 
-def create_vm(project_id, zone, vm_name, image_project, image_family, startup_script):
-    thread = threading.Thread(target=create_from_image,
-                              args=(project_id, zone, vm_name, image_project, image_family, startup_script))
-    thread.start()
-    return thread
+import threading
 
 
-def create_multiple_vms(start, end, name_prefix, project_id='plant-hero', zone='us-central1-a',
-                        image_project='debian-cloud', image_family='debian-11', startup_script=None):
+def create_vms():
     threads = []
-    for i in range(start, end + 1):
-        vm_name = f"{name_prefix}{i}"
-        thread = create_vm(project_id, zone, vm_name, image_project, image_family, startup_script)
+    for i in range(1, 3):
+        vm_name = f"vm{i}"
+        thread = threading.Thread(target=create_from_image,
+                                  args=('plant-hero', 'us-central1-a', vm_name, 'debian-cloud', 'debian-10'))
+        thread.start()
         threads.append(thread)
     for thread in threads:
         thread.join()
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Create virtual machines.')
-    parser.add_argument('start', type=int, help='start number of virtual machines')
-    parser.add_argument('end', type=int, help='end number of virtual machines')
-    parser.add_argument('-s', '--script', type=str,
-                        default='''#!/bin/bash
-                        touch startup_script_success_run.txt
-                        sudo apt-get update
-                        sudo apt-get install -y docker.io
-                        sudo docker run -d -p 80:80 nginx
-                        sudo apt install -y python3 python3-pip
-                        sudo python3 -m pip install ray
-                        ''',
-                        help='startup script for virtual machines')
-    parser.add_argument('-p', '--project', type=str, default='plant-hero', help='project ID')
-    parser.add_argument('-z', '--zone', type=str, default='us-central1-a', help='zone')
-    parser.add_argument('-i', '--image-project', type=str, default='debian-cloud', help='image project')
-    parser.add_argument('-f', '--image-family', type=str, default='debian-11', help='image family')
-    parser.add_argument('-n', '--name-prefix', type=str, default='vm-', help='prefix for vm name')
-    args = parser.parse_args()
-
-    create_multiple_vms(args.start, args.end, args.name_prefix, args.project, args.zone, args.image_project,
-                        args.image_family, args.script)
+    create_vms()
