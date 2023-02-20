@@ -189,8 +189,10 @@ def create_vm(project_id, zone, vm_name, image_project, image_family, startup_sc
     return thread
 
 
-def create_multiple_vms(start, end, name_prefix, project_id='plant-hero', zone='us-central1-a',
-                        image_project='debian-cloud', image_family='debian-11', startup_script=None):
+def create_multiple_vms(start: int = 1, end: int = 2, name_prefix: str = "vm",
+                        project_id: str = "plant-hero", zone: str = "us-central1-a",
+                        image_project: str = "debian-cloud", image_family: str = "debian-10",
+                        startup_script: str = None) -> None:
     threads = []
     for i in range(start, end + 1):
         vm_name = f"{name_prefix}{i}"
@@ -202,8 +204,8 @@ def create_multiple_vms(start, end, name_prefix, project_id='plant-hero', zone='
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create virtual machines.')
-    parser.add_argument('start', type=int, help='start number of virtual machines')
-    parser.add_argument('end', type=int, help='end number of virtual machines')
+    parser.add_argument('--start', type=int, default=1, help='start number of virtual machines')
+    parser.add_argument('--end', type=int, default=2, help='end number of virtual machines')
     parser.add_argument('-s', '--script', type=str,
                         default='''#!/bin/bash
                         touch startup_script_success_run.txt
