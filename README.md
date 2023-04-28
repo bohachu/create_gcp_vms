@@ -29,6 +29,17 @@ The following example creates 3 virtual machines using a custom startup script:
 python create_gcp_vms.py --start 1 --end 3 --script "#!/bin/bash
 touch test.txt"
 ```
+
+### If you want to run this script on GCP, please use following commands to setup your environment:
+If you use "gcloud init" to setup environment but can not work, please use following commands:
+```
+gcloud auth login
+gcloud config set project YOUR_PROJECT_ID
+gcloud iam service-accounts create my-service-account --display-name "My Service Account"
+gcloud iam service-accounts keys create ~/key.json --iam-account my-service-account@YOUR_PROJECT_ID.iam.gserviceaccount.com
+export GOOGLE_APPLICATION_CREDENTIALS=~/key.json
+```
+
 ### Difficulties and Solutions Encountered in Writing This Script
 * Google Cloud Platform has limitations on the t2d-standard-1 type, which offers the best value for money.
 * Each t2d-standard-1 Spot VM costs 5.05 USD per month, and each project can have a maximum of 24 VMs. After requesting an increase to 700, Google only allowed a maximum of 500 VMs per project.
@@ -38,15 +49,6 @@ touch test.txt"
 * Used ChatGPT to help design the CLI parameters.
 * Initially, ChatGPT always gave me old, incorrect code. I downloaded the latest GCP API and taught ChatGPT how to write the code.
 * Take small steps and don't design the entire architecture at once. Test one function at a time before expanding, or debugging will be difficult.
-
-### If you want to run this script on GCP, please use following commands to setup your environment:
-```
-gcloud auth login
-gcloud config set project YOUR_PROJECT_ID
-gcloud iam service-accounts create my-service-account --display-name "My Service Account"
-gcloud iam service-accounts keys create ~/key.json --iam-account my-service-account@YOUR_PROJECT_ID.iam.gserviceaccount.com
-export GOOGLE_APPLICATION_CREDENTIALS=~/key.json
-```
 
 ### Todo
 * Output the started VM as a JSON message to announce the Public IP and Private IP to the caller for use.
