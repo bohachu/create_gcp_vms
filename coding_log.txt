@@ -1,5 +1,15 @@
-### 2023-02-20 09:04 v1.0 釋出
+### 2023-04-28 roy bowen, 大功告成 用 service account 的方法去開 new vm , 而不是 gcloud init 選選選
+gcloud auth login
+gcloud config set project YOUR_PROJECT_ID
+gcloud iam service-accounts create my-service-account --display-name "My Service Account"
+gcloud iam service-accounts keys create ~/key.json --iam-account my-service-account@YOUR_PROJECT_ID.iam.gserviceaccount.com
+export GOOGLE_APPLICATION_CREDENTIALS=~/key.json
 
+!!! 最後一個 binding 一定要做 !!!
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID --member='serviceAccount:my-service-account@YOUR_PROJECT_ID.iam.gserviceaccount.com' --role='roles/editor'
+
+
+### 2023-02-20 09:04 v1.0 釋出
 ### GCP 建立虛擬機器腳本
 這是一個用於在 GCP 上建立多台虛擬機器的 Python 腳本。您可以使用這個腳本輕鬆地建立多台具有自定義啟動腳本的虛擬機器。
 
