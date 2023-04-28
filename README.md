@@ -39,6 +39,15 @@ touch test.txt"
 * Initially, ChatGPT always gave me old, incorrect code. I downloaded the latest GCP API and taught ChatGPT how to write the code.
 * Take small steps and don't design the entire architecture at once. Test one function at a time before expanding, or debugging will be difficult.
 
+### If you want to run this script on GCP, please use following commands to setup your environment:
+```
+gcloud auth login
+gcloud config set project YOUR_PROJECT_ID
+gcloud iam service-accounts create my-service-account --display-name "My Service Account"
+gcloud iam service-accounts keys create ~/key.json --iam-account my-service-account@YOUR_PROJECT_ID.iam.gserviceaccount.com
+export GOOGLE_APPLICATION_CREDENTIALS=~/key.json
+```
+
 ### Todo
 * Output the started VM as a JSON message to announce the Public IP and Private IP to the caller for use.
 * Write it as a Python package that can be installed with pip install.
