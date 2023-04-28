@@ -1,4 +1,9 @@
 ### 2023-04-28 roy bowen, 大功告成 用 service account 的方法去開 new vm , 而不是 gcloud init 選選選
+
+在 GCP 跑程式碼開 new vm 經常會碰到權限不足的問題，就算設定 login user 為 owner 也沒有用
+這是因為 gcp vm 所使用的 service account 權限不夠導致
+此時要做以下的作業：
+
 gcloud auth login
 gcloud config set project YOUR_PROJECT_ID
 gcloud iam service-accounts create my-service-account --display-name "My Service Account"
